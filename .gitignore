@@ -2,3 +2,5 @@
 .vscode
 .env
 *.pyc
+.gitignore
+.pylintrc
