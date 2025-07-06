@@ -7,6 +7,7 @@ Streamlit UI for the FastAPI “Ticket Service”.
 from __future__ import annotations
 
 import os
+from functools import partial
 from typing import Any, Dict, List, Sequence
 
 import requests
@@ -41,10 +42,10 @@ def _req(method: str, path: str, **kw):
     return r
 
 
-api_get = lambda p, **k: _req("GET", p, **k)
-api_post = lambda p, **k: _req("POST", p, **k)
-api_patch = lambda p, **k: _req("PATCH", p, **k)
-api_delete = lambda p, **k: _req("DELETE", p, **k)
+api_get = partial(_req, "GET")
+api_post = partial(_req, "POST")
+api_patch = partial(_req, "PATCH")
+api_delete = partial(_req, "DELETE")
 
 
 ###############################################################################

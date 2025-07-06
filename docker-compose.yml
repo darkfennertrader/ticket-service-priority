@@ -5,20 +5,33 @@ x-common: &defaults          # DRY helper
   networks: [ ticket-net ]
 
 services:
+  # --- one-shot migration container ------------------
+  init-db:
+    <<: *defaults
+    command: python -m app.db.init_db
+    volumes:
+      - ticket-data:/usr/src/app/data
+    restart: "no"
+
   api:
     <<: *defaults
     container_name: ticket-api
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     volumes:
       - ./app:/usr/src/app/app
+      - ticket-data:/usr/src/app/data 
     ports:
       - "${API_HOST_PORT:-8000}:8000"
     environment:
+      DATABASE_URL: sqlite+aiosqlite:///./data/tickets.db
       PYTHONUNBUFFERED: "1"
+    depends_on:
+      init-db:
+        condition: service_completed_successfully
     healthcheck:                   # lets frontend wait until API is live
       test: curl -f http://localhost:8000/ || exit 1
-      interval: 30s
-      retries: 12
+      interval: 10s
+      retries: 10
   
   frontend:
     <<: *defaults
@@ -42,3 +55,6 @@ services:
 networks:
   ticket-net:
     driver: bridge
+
+volumes:
+  ticket-data:
