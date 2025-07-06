@@ -25,10 +25,10 @@ cd ticket-service-priority
 # 2 – set env-vars (copy env.example if you need to tweak anything)
 cp env.example .env
 
-# set inside the copied .env the following var if needed:
-OPENAI_API_KEY="sk-..."    # real key for live priority classification
-API_HOST_PORT=9000     # if port 8000 already in use
-UI_HOST_PORT=9500      # if port 8501 already in use
+# set inside the copied .env the following vars if needed:
+OPENAI_API_KEY="sk-..."       # real key for live priority classification with an OPEN_AI LLM
+API_HOST_PORT=...             # set it to whatever number if port 8000 is already in use
+UI_HOST_PORT=...              # set it to whatever number if port 8501 is already in use
 
 
 # 3 – launch the full stack
