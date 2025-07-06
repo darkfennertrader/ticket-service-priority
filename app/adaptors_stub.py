@@ -2,9 +2,29 @@
 choose concrete adapters & build singletons (one instance only).
 """
 
+import logging
 from app.adapters.repos.in_memory_repo import InMemoryTicketRepository
 from app.adapters.repos.sqlite_repo import SQLiteTicketRepository
-from app.adapters.llm.fake_classifier import FakePriorityClassifier
+
+# ----------------------------- Classifier -----------------------------
+try:
+    from app.adapters.llm.langgraph_classifier import (
+        LangGraphPriorityClassifier,
+    )
+
+    _classifier = LangGraphPriorityClassifier()
+
+except Exception as exc:  # pylint: disable=broad-exception-caught
+    # No OPENAI_API_KEY, missing deps, or any runtime issue → PRIORITY = TBD
+    logging.warning(
+        "LangGraphPriorityClassifier unavailable (%s) – defaulting all "
+        "tickets to priority=TBD.",
+        exc,
+    )
+    from app.adapters.llm.tbd_classifier import TbdPriorityClassifier
+
+    _classifier = TbdPriorityClassifier()
+
 from app.core.service import TicketService
 from app.db.engine import engine
 
@@ -16,7 +36,6 @@ from app.db.engine import engine
 
 # SQWLite Database
 _repo = SQLiteTicketRepository(engine)
-_classifier = FakePriorityClassifier()
 
 
 def get_service() -> TicketService:

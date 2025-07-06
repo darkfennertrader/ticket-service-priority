@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from app.core.models import Priority, Status
 
 
@@ -17,8 +17,10 @@ class TicketUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[Status] = None
 
-    class Config:
-        extra = "forbid"
+    # class Config:
+    #     extra = "forbid"
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class TicketRead(BaseModel):
@@ -30,5 +32,7 @@ class TicketRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    # class Config:
+    #     orm_mode = True
+
+    model_config = ConfigDict(from_attributes=True)

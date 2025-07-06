@@ -16,6 +16,9 @@ import streamlit as st
 API_URL = os.getenv("API_URL", "http://localhost:8001")
 st.set_page_config(page_title="Ticket Service", page_icon="🎫", layout="wide")
 
+st.title("🎫  Ticket Priority Service")
+st.write("AI-assisted customer-support ticket system")
+
 ###############################################################################
 # ─── Session-state bootstrapping ─────────────────────────────────────────────
 ###############################################################################
@@ -45,16 +48,16 @@ def _req(method: str, path: str, **kw):
     url = f"{API_URL}{path}"
 
     # ── verbose client-side log ────────────────────────────────────────────
-    if kw.get("params") or kw.get("json"):
-        print(
-            "[FRONTEND-DEBUG]",
-            method,
-            url,
-            "params=",
-            kw.get("params"),
-            "json=",
-            kw.get("json"),
-        )
+    # if kw.get("params") or kw.get("json"):
+    # print(
+    #     "[FRONTEND-DEBUG]",
+    #     method,
+    #     url,
+    #     "params=",
+    #     kw.get("params"),
+    #     "json=",
+    #     kw.get("json"),
+    # )
     try:
         r = requests.request(method, f"{API_URL}{path}", timeout=10, **kw)
     except requests.RequestException as exc:
@@ -130,6 +133,10 @@ def _fetch_ticket_list() -> List[Dict[str, Any]]:
 def ui_browse_tickets() -> None:
     st.header("Tickets")
 
+    # Was a reset requested in the previous run?
+    if st.session_state.pop("reset_selected", False):
+        st.session_state.selected_id = None
+
     # ── filters ────────────────────────────────────────────────────────────
     def _clear_selection():
         st.session_state.selected_id = None
@@ -164,7 +171,7 @@ def ui_browse_tickets() -> None:
     tid = st.selectbox(
         "Select a ticket id",
         options,
-        key="selected_id",  # state-driven, no manual index needed
+        key="selected_id",
         placeholder="— pick a ticket —",
     )
     if not tid:
@@ -195,6 +202,7 @@ def ui_browse_tickets() -> None:
             )
             if pr.status_code == 200:
                 st.success("Ticket updated ✔")
+                st.session_state.reset_selected = True
                 st.rerun()
             else:
                 st.error(f"Update failed: {pr.status_code} – {pr.text}")
