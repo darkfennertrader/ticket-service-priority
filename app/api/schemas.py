@@ -4,19 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
-
-
-class Priority(str, Enum):
-    LOW = "LOW"
-    MEDIUM = "MEDIUM"
-    HIGH = "HIGH"
-    TBD = "TBD"
-
-
-class Status(str, Enum):
-    OPEN = "OPEN"
-    IN_PROGRESS = "IN_PROGRESS"
-    CLOSED = "CLOSED"
+from app.core.models import Priority, Status
 
 
 class TicketCreate(BaseModel):

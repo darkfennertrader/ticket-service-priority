@@ -34,12 +34,39 @@ for k, v in defaults.items():
 # ─── tiny HTTP wrapper ───────────────────────────────────────────────────────
 ###############################################################################
 def _req(method: str, path: str, **kw):
+    """
+    Tiny HTTP wrapper around requests.request() that:
+
+    1. Prepends the API base URL to every call.
+    2. Logs the full request (method, URL, params, JSON) to stdout so you can
+       see exactly what the frontend is sending.
+    3. Shows a Streamlit error and stops execution on any networking problem.
+    """
+    url = f"{API_URL}{path}"
+
+    # ── verbose client-side log ────────────────────────────────────────────
+    if kw.get("params") or kw.get("json"):
+        print(
+            "[FRONTEND-DEBUG]",
+            method,
+            url,
+            "params=",
+            kw.get("params"),
+            "json=",
+            kw.get("json"),
+        )
     try:
         r = requests.request(method, f"{API_URL}{path}", timeout=10, **kw)
     except requests.RequestException as exc:
         st.error(f"❌ Network error: {exc}")
         st.stop()
     return r
+
+
+# def _req(method: str, path: str, **kw):
+#     url = f"{API_URL}{path}"
+#     if kw.get("params"):
+#         print("[FRONTEND-DEBUG]", url, kw["params"])  #  add this
 
 
 api_get = partial(_req, "GET")
@@ -104,22 +131,24 @@ def ui_browse_tickets() -> None:
     st.header("Tickets")
 
     # ── filters ────────────────────────────────────────────────────────────
+    def _clear_selection():
+        st.session_state.selected_id = None
+
     col1, col2 = st.columns(2)
+
     with col1:
         st.selectbox(
             "Status",
             ("ALL", *STATUSES),
-            index=("ALL", *STATUSES).index(st.session_state.status_filter),
             key="status_filter",
-            on_change=lambda: st.session_state.update(selected_id=None),  # type: ignore
+            on_change=_clear_selection,
         )
     with col2:
         st.selectbox(
             "Priority",
             ("ALL", *PRIORITIES),
-            index=("ALL", *PRIORITIES).index(st.session_state.priority_filter),
             key="priority_filter",
-            on_change=lambda: st.session_state.update(selected_id=None),  # type: ignore
+            on_change=_clear_selection,
         )
 
     tickets = _fetch_ticket_list()
