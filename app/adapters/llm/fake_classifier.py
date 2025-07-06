@@ -4,7 +4,7 @@ from app.core.ports import PriorityClassifierPort
 
 class FakePriorityClassifier(PriorityClassifierPort):
     """
-    Silly heuristic, now wrapped in an async coroutine.
+    Fake Classifier.
     """
 
     KEYWORDS_HIGH = ("urgent", "asap", "immediately", "fail", "error", "crash")

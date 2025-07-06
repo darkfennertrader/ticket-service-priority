@@ -79,7 +79,6 @@ class LangGraphPriorityClassifier(PriorityClassifierPort):
         except Exception:  # pylint: disable=broad-exception-caught
             return Priority.TBD
 
-    # ---------------------------------------------------------------- LangGraph node
     async def _priority_agent(self, state: ClassifierState):
         """
         Single node that asks the LLM for a structured answer and pushes it

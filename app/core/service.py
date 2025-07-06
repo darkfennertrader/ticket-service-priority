@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from app.core.models import Status, Ticket
@@ -47,7 +47,7 @@ class TicketService:
             ticket.description = description
         if status is not None:
             ticket.status = status
-        ticket.updated_at = datetime.utcnow()
+        ticket.updated_at = datetime.now(timezone.utc).replace(microsecond=0)
         await self._repo.update(ticket)
         return ticket
 
