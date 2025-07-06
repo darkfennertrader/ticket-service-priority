@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: ticket-service
+    ports:
+      - "8000:8000"          # HOST:CONTAINER
+    environment:
+      PYTHONUNBUFFERED: "1"  # same envs as in Dockerfile (optional override)
+    restart: unless-stopped
