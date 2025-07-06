@@ -1,8 +1,7 @@
 """Pure unit tests – no HTTP, DB or network access."""
 
-import pytest
 from unittest.mock import AsyncMock
-
+import pytest
 from app.adapters.llm.tbd_classifier import TbdPriorityClassifier
 from app.adapters.repos.in_memory_repo import InMemoryTicketRepository
 from app.core.models import Priority

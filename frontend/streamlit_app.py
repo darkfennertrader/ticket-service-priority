@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Sequence
 
 import requests
 import streamlit as st
+from helpers import _humanise_dates
 
 API_URL = os.getenv("API_URL", "http://localhost:8001")
 st.set_page_config(page_title="Ticket Service", page_icon="🎫", layout="wide")
@@ -163,7 +164,8 @@ def ui_browse_tickets() -> None:
         st.info("No tickets match the selected filters.")
         return
 
-    st.dataframe(tickets, hide_index=True, use_container_width=True)
+    table_rows = [_humanise_dates(t) for t in tickets]
+    st.dataframe(table_rows, hide_index=True, use_container_width=True)
 
     # ── pick a ticket ──────────────────────────────────────────────────────
     options = [t["id"] for t in tickets]

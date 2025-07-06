@@ -41,7 +41,7 @@ TASK
 
 POLICY
 HIGH   - Full production outage, data loss, security breach, payment failure,
-         or any issue that blocks customers from using a core feature.
+         or any issue that blocks customers from using a core feature or urgency highlighted in the message.
 MEDIUM - Partial outage, severe performance degradation, significant bug with a
          workaround, or time-sensitive issue that is not mission-critical.
 LOW    - Cosmetic defect, minor usability issue, documentation request, feature
