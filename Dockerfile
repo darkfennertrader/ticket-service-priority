@@ -4,7 +4,7 @@ FROM python:3.12.11
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-WORKDIR /srv
+WORKDIR /usr/src/app 
 
 # Install system packages only if you need them (none for this demo).
 # RUN apt-get update && apt-get install -y gcc build-essential ...
@@ -16,6 +16,7 @@ RUN pip install --upgrade pip \
 
 # ---------- Application code -----
 COPY ./app ./app
+COPY frontend/ ./frontend/
 
 # Uvicorn will listen on 0.0.0.0:8000 inside the container
 EXPOSE 8000

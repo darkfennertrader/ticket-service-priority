@@ -1,6 +1,5 @@
 """
-Internal wiring helper so FastAPI deps are a one-liner.
-Creates ONE in-memory repo (acts like a DB) and one fake classifier.
+choose concrete adapters & build singletons (one instance only).
 """
 
 from app.adapters.repos.in_memory_repo import InMemoryTicketRepository

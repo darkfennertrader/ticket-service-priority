@@ -1,11 +1,44 @@
-version: "3.9"
+
+x-common: &defaults          # DRY helper
+  build: .
+  restart: unless-stopped    # auto-start on reboot; no zombie containers
+  networks: [ ticket-net ]
 
 services:
   api:
-    build: .
-    container_name: ticket-service
+    <<: *defaults
+    container_name: ticket-api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./app:/usr/src/app/app
     ports:
-      - "8000:8000"          # HOST:CONTAINER
+      - "${API_HOST_PORT:-8000}:8000"
     environment:
-      PYTHONUNBUFFERED: "1"  # same envs as in Dockerfile (optional override)
-    restart: unless-stopped
+      PYTHONUNBUFFERED: "1"
+    healthcheck:                   # lets frontend wait until API is live
+      test: curl -f http://localhost:8000/ || exit 1
+      interval: 30s
+      retries: 12
+  
+  frontend:
+    <<: *defaults
+    container_name: ticket-ui
+    command: >
+      streamlit run frontend/streamlit_app.py
+      --server.port 8501
+      --server.address 0.0.0.0
+    volumes:
+      - ./frontend:/usr/src/app/frontend
+    environment:
+      - API_URL=http://api:8000
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_RUN_ON_SAVE=true
+    ports:
+      - "${UI_HOST_PORT:-8501}:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+
+networks:
+  ticket-net:
+    driver: bridge
