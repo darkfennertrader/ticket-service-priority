@@ -6,7 +6,10 @@ A tiny, production-style micro-service that lets you:
 * auto-classify each ticket’s priority with an LLM
 * browse the data through a Streamlit UI
 
-The code follows a clean “ports & adapters” layout (FastAPI → Service Layer → Repos / LLM adapter) and is fully containerised with Docker Compose.
+The code follows a clean “ports & adapters” layout (FastAPI → Service Layer → Repos / LLM adapter)
+and is fully containerised with Docker Compose.
+
+![High-level architecture diagram](images/sw_architecture.png)
 
 ---
 
@@ -16,13 +19,13 @@ Prerequisites: Docker 19.03+ and Docker Compose v2.
 
 ```bash
 # 1 – clone
-git clone https://github.com/<you>/ticket-service.git
-cd ticket-service
+git clone https://github.com/darkfennertrader/ticket-service-priority.git
+cd ticket-service-priority
 
 # 2 – set env-vars (copy env.example if you need to tweak anything)
 cp env.example .env
 
-# set inside .env the following var if needed:
+# set inside the copied .env the following var if needed:
 OPENAI_API_KEY="sk-..."    # real key for live priority classification
 API_HOST_PORT=9000     # if port 8000 already in use
 UI_HOST_PORT=9500      # if port 8501 already in use
@@ -36,7 +39,7 @@ Compose does three things:
 
 1. `init-db` – one-shot container that creates the `tickets` table in SQLite  
 2. `api`     – FastAPI backend on <http://localhost:your_local_port>  
-3. `frontend` – Streamlit UI on <http://localhost:your_local_port>
+3. `frontend` – Streamlit UI frontend on <http://localhost:your_local_port>
 
 Stop everything with `CTRL-C` and wipe volumes with `docker compose down -v`.
 
@@ -56,32 +59,32 @@ Stop everything with `CTRL-C` and wipe volumes with `docker compose down -v`.
 
 ### Example calls with `curl`
 
-Create:
-
+CREATE:
 ```bash
-curl -X POST http://localhost:8000/tickets \
+curl -X POST http://localhost:<YOUR_PORT>/tickets \
      -H "Content-Type: application/json" \
      -d '{ "title": "Prod down", "description": "Login is impossible" }'
 ```
 
-List (only OPEN+HIGH):
-
+LIST ALL TICKETS:
 ```bash
-curl "http://localhost:8000/tickets?status_filter=OPEN&priority_filter=HIGH"
+curl "http://localhost:<YOUR_PORT>/tickets"
+```
+LIST (only OPEN+HIGH):
+```bash
+curl "http://localhost:<YOUR_PORT>/tickets?status_filter=OPEN&priority_filter=HIGH"
 ```
 
-Update status:
-
+UPDATE STATUS:
 ```bash
-curl -X PATCH http://localhost:8000/tickets/<UUID> \
+curl -X PATCH http://localhost:<YOUR_PORT>/tickets/<UUID> \
      -H "Content-Type: application/json" \
      -d '{ "status": "IN_PROGRESS" }'
 ```
 
-Delete:
-
+DELETE:
 ```bash
-curl -X DELETE http://localhost:8000/tickets/<UUID>
+curl -X DELETE http://localhost:<YOUR_PORT>/tickets/<UUID>
 ```
 
 ---
@@ -132,7 +135,9 @@ pytest -q
 You can also execute the very same tests against the API image:
 
 ```bash
-docker compose run --rm api pytest -q
+docker compose run --rm \
+  -v "$(pwd)/tests":/usr/src/app/tests \
+  api pytest -q
 ```
 
 Both ways finish in a few seconds and require no real OpenAI key.
