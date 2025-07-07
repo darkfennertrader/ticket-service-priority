@@ -13,9 +13,28 @@ and is fully containerised with Docker Compose.
 
 ---
 
-## 1. Quick-start (Docker Compose)
+## 1. Quick-Start & Cross-Platform Setup (Docker Compose)
 
-Prerequisites: Docker 19.03+ and Docker Compose v2.
+Prerequisites: Docker 19.03 or newer and Docker Compose v2.
+
+### 💻  Shell / OS compatibility
+The commands you see below are written in standard POSIX-style
+(bash / zsh). They therefore run unmodified on:
+
+• any Linux distribution  
+• macOS Terminal / iTerm  
+• Windows 10/11 when you use WSL 2 or Git-Bash  
+
+Running Windows **without** WSL?
+
+1. Replace the one `cp` command with its Windows siblings  
+   PowerShell → `Copy-Item env.example .env`  
+   CMD        → `copy env.example .env`
+2. All `git clone …` and `docker compose …` lines stay exactly the
+   same—Docker Desktop ships the very same v2 CLI plug-in on Windows.
+
+Other than that tweak, every step is identical across operating
+systems because the heavy lifting happens inside the containers.
 
 ```bash
 # 1 – clone
@@ -24,13 +43,14 @@ cd ticket-service-priority
 
 # 2 – set env-vars (copy env.example if you need to tweak anything)
 cp env.example .env
+```
 
-# set inside the copied .env the following vars if needed:
-OPENAI_API_KEY="sk-..."       # real key for live priority classification with an OPEN_AI LLM
-API_HOST_PORT=...             # set it to whatever number if port 8000 is already in use
-UI_HOST_PORT=...              # set it to whatever number if port 8501 is already in use
+inside the copied .env set the following vars if needed:
+OPENAI_API_KEY="sk-..."            # real key for live priority classification with an OPEN_AI LLM
+API_HOST_PORT=<your_local_port>    # set it to whatever number if port 8000 is already in use on the host machine
+UI_HOST_PORT=<your_local_port>     # set it to whatever number if port 8501 is already in use on the host machine
 
-
+```bash
 # 3 – launch the full stack
 docker compose up --build
 ```
@@ -45,7 +65,7 @@ Stop everything with `CTRL-C` and wipe volumes with `docker compose down -v`.
 
 ---
 
-## 2. REST API Cheat-sheet
+## 2a. REST API Cheat-sheet
 
 (The interactive Swagger docs live at `/docs`)
 
@@ -86,6 +106,31 @@ DELETE:
 ```bash
 curl -X DELETE http://localhost:<YOUR_PORT>/tickets/<UUID>
 ```
+
+## 2b. (OPTIONAL) Point-and-Click UI (🚀 Streamlit)
+
+Don’t feel like typing cURL commands?  
+Spin up the included Streamlit app instead and drive the API from your browser.
+
+### How to launch
+
+`docker compose up --build` already starts three containers:
+
+1. `init-db`   (one-shot, creates the *tickets* table)  
+2. `api`       (FastAPI backend on `http://localhost:${API_HOST_PORT:-8000}`)  
+3. `frontend`  (Streamlit UI on `http://localhost:${UI_HOST_PORT:-8501}`)
+
+Just open the URL shown above (default `http://localhost:<your_local_port>`) and you’re in.
+
+### What you can do
+
+• **Create Ticket** – fill a form, hit *Create*, watch the LLM auto-priority appear.  
+• **Browse Tickets** – filter by status/priority, inspect details, update or delete.  
+• **Deleted Tickets** – a session-local table thta lists all the deleted tickets.
+
+Everything you do in the UI is a plain HTTP request to the FastAPI service; the
+browser dev-tools Network tab shows the exact endpoints if you want to peek
+under the hood.
 
 ---
 
